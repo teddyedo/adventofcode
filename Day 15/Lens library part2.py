@@ -1,42 +1,54 @@
 boxes = {key: [] for key in range(256)}
 
-def calculate_hash(text, current_value):
-    ascii_code = ord(text)
-    current_value += ascii_code
-    current_value *= 17
-    current_value = current_value % 256
-    return current_value
+def calculate_focus_power(box_id, position, focal_length):
+    return (box_id+1) * (position + 1) * focal_length
+    
 
-def calculate_box(sequence):
-    box_id = 0
-    for char in sequence:
-        box_id = calculate_hash(box_id)
-    return box_id 
+def calculate_hash(text):
+    value = 0
+
+    for ch in text:
+        value += ord(ch)
+        value *= 17
+        value %= 256
+
+    return value
+
 
 def elaborate_sequence(sequence):
-    operation = ""
     label = ""
-    lens_value = 0
-    box_to_operate = calculate_box(sequence)
     
     if "=" in sequence:
-        operation = "="
+        box_to_operate = calculate_hash(sequence[:sequence.find("=")])
         label = sequence.split("=")[0]
         focal_length = int(sequence.split("=")[1])
-        if label in boxes[box_to_operate]:
-            
+        for i in range(len(boxes[box_to_operate])):
+            if label == boxes[box_to_operate][i][0]:
+                boxes[box_to_operate][i] = (label, focal_length)
+                return
+        boxes[box_to_operate].append((label, focal_length))
     else:
-        operation = "-"
+        box_to_operate = calculate_hash(sequence[:sequence.find("-")])
         label = sequence.split("-")[0]
-        if label in boxes[box_to_operate]:
-            boxes[box_to_operate].remove(label)
-
-    
-    print(label, operation)
+        for i in range(len(boxes[box_to_operate])):
+            if label == boxes[box_to_operate][i][0]:
+                boxes[box_to_operate].remove((label, boxes[box_to_operate][i][1]))
+                break
 
 init_sequence = []
 
 with open("input.txt") as file:
     init_sequence = file.read().split(",")
-    for i in range(10):
+    for i in range(len(init_sequence)):
         elaborate_sequence(init_sequence[i])
+    
+    for i in range(256):
+        print(i, boxes[i])
+    
+    total_focusing_power = 0
+    
+    for box_id in range(len(boxes)):
+        for lens_id, lens in enumerate(boxes[box_id]):
+            total_focusing_power += calculate_focus_power(box_id, lens_id, lens[1])
+            
+print(total_focusing_power)
