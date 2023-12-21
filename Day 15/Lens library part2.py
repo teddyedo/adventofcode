@@ -42,9 +42,6 @@ with open("input.txt") as file:
     for i in range(len(init_sequence)):
         elaborate_sequence(init_sequence[i])
     
-    for i in range(256):
-        print(i, boxes[i])
-    
     total_focusing_power = 0
     
     for box_id in range(len(boxes)):
