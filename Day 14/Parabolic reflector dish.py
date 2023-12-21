@@ -1,25 +1,7 @@
-from collections import Counter
+grid = open("input.txt").read().splitlines()
+grid = list(map("".join, zip(*grid)))
+grid = ["#".join(["".join(sorted(list(group), reverse=True))
+                 for group in row.split("#")]) for row in grid]
+grid = list(map("".join, zip(*grid)))
 
-
-rock_map = []
-
-with open("input.txt") as file:
-    for line in file:
-        rock_map.append(list(line.strip()))
-
-for i in range(len(rock_map)):
-    for j in range(len(rock_map[i])):
-        if rock_map[i][j] == "O":
-            row = i
-            while row > 0 and rock_map[row-1][j] == ".":
-                rock_map[row-1][j] = "O"
-                rock_map[row][j] = "."
-                row -= 1
-
-total_weight = 0
-row_weight = len(rock_map)
-
-for row in rock_map:
-    total_weight += row.count("O") * row_weight
-    row_weight -= 1
-print(total_weight)
+print(sum(row.count("O") * (len(grid) - r) for r, row in enumerate(grid)))
